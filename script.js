@@ -16,7 +16,8 @@ function goToSection(id) {
   }
 }
 
-function switchTab(id, btn) {
+// أضفنا مُعامل pushToHistory للتحكم في تسجيل الزيارات
+function switchTab(id, btn, pushToHistory = true) {
   // 1. التحكم في ظهور شريط التبويبات العلوي
   const tabsContainer = document.getElementById('main-tabs');
   if (id === 'home') {
@@ -28,8 +29,18 @@ function switchTab(id, btn) {
   // 2. تغيير القسم المعروض وتفعيل الزر
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
+  
+  const targetSection = document.getElementById(id);
+  if (targetSection) targetSection.classList.add('active');
+  
+  // إذا لم يتم تمرير الزر (مثل حالة العودة بزر الرجوع)، نبحث عنه برمجياً ونفعله
+  const targetBtn = btn || document.querySelector(`.tab[onclick="switchTab('${id}', this)"]`);
+  if (targetBtn) targetBtn.classList.add('active');
+
+  // 3. إضافة الانتقال إلى سجل المتصفح (الخدعة الخاصة بزر الرجوع)
+  if (pushToHistory) {
+    history.pushState({ page: id }, '', '#' + id);
+  }
 }
 
 // ===== HELPERS (دوال مساعدة) =====
@@ -339,3 +350,17 @@ function closeModal(e) {
   if (e.target === document.getElementById('modal-overlay')) closeModalBtn();
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalBtn(); });
+
+// ===== إعدادات زر الرجوع في الهاتف (History API) =====
+window.addEventListener('popstate', function(event) {
+  if (event.state && event.state.page) {
+    // الرجوع إلى القسم المحفوظ في السجل
+    switchTab(event.state.page, null, false);
+  } else {
+    // الرجوع إلى الشاشة الرئيسية كوضع افتراضي
+    switchTab('home', null, false);
+  }
+});
+
+// تشغيل مبدئي لتسجيل الشاشة الرئيسية عند فتح التطبيق لأول مرة
+history.replaceState({ page: 'home' }, '', '#home');
