@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EI Calc — Électricité Industrielle</title>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="light">
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    EI Calc
+  </div>
+  <div class="header-right">
+    <span class="badge">ELECTRICITE⚡</span>
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Changer le thème">🌙</button>
+  </div>
+</header>
+
+<div class="container">
+<div class="tabs" id="main-tabs" style="display: none;">
+    <button class="tab active" onclick="switchTab('home', this)">🏠 Accueil</button>
+    <button class="tab" onclick="switchTab('lois', this)">⚡ Lois de base</button>
+    <button class="tab" onclick="switchTab('moteurs', this)">⚙️ Moteurs</button>
+    <button class="tab" onclick="switchTab('transfo', this)">🔄 Transformateurs</button>
+    <button class="tab" onclick="switchTab('cablage', this)">📏 Câblage</button>
+    <button class="tab" onclick="switchTab('cours', this)">📚 Cours</button>
+  </div>
+<div class="section active" id="home">
+    <div class="section-title">Bienvenue sur EI Calc</div>
+    <div class="section-desc">Choisissez l'outil ou la section que vous souhaitez utiliser :</div>
+
+    <div class="home-grid">
+      <div class="home-card" onclick="goToSection('lois')">
+        <div class="home-icon orange">⚡</div>
+        <div class="home-title">Lois de base</div>
+        <div class="home-desc">Ohm, Puissances...</div>
+      </div>
+      
+      <div class="home-card" onclick="goToSection('moteurs')">
+        <div class="home-icon green">⚙️</div>
+        <div class="home-title">Moteurs</div>
+        <div class="home-desc">Vitesse, Glissement...</div>
+      </div>
+      
+      <div class="home-card" onclick="goToSection('transfo')">
+        <div class="home-icon blue">🔄</div>
+        <div class="home-title">Transformateurs</div>
+        <div class="home-desc">Rapport, Rendement...</div>
+      </div>
+      
+      <div class="home-card" onclick="goToSection('cablage')">
+        <div class="home-icon orange">📏</div>
+        <div class="home-title">Câblage</div>
+        <div class="home-desc">Section des câbles...</div>
+      </div>
+      
+      <div class="home-card" onclick="goToSection('cours')">
+        <div class="home-icon green">📚</div>
+        <div class="home-title">Cours</div>
+        <div class="home-desc">Théorie et résumés...</div>
+      </div>
+    </div>
+  </div>
+  <div class="section" id="lois">
+    <div class="section-title">Lois Fondamentales</div>
+    <div class="section-desc">Calculateurs pour les lois de base de l'électricité industrielle</div>
+
+    <div class="calc-card">
+      <div class="calc-header">
+        <div class="calc-icon">Ω</div>
+        <div>
+          <div class="calc-name">Loi d'Ohm</div>
+          <div class="calc-formula">U = R × I</div>
+        </div>
+      </div>
+      <div class="inputs-grid">
+        <div class="field">
+          <label>Calculer</label>
+          <select id="ohm-calc" onchange="updateOhmFields()">
+            <option value="U">Tension U (V)</option>
+            <option value="R">Résistance R (Ω)</option>
+            <option value="I">Courant I (A)</option>
+          </select>
+        </div>
+        <div class="field" id="ohm-field-R">
+          <label>Résistance R (Ω)</label>
+          <input type="number" id="ohm-R" placeholder="ex: 10" min="0">
+        </div>
+        <div class="field" id="ohm-field-I">
+          <label>Courant I (A)</label>
+          <input type="number" id="ohm-I" placeholder="ex: 5" min="0">
+        </div>
+        <div class="field" id="ohm-field-U" style="display:none">
+          <label>Tension U (V)</label>
+          <input type="number" id="ohm-U" placeholder="ex: 220" min="0">
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calcOhm()">Calculer</button>
+      <div class="error-msg" id="ohm-err">⚠️ Veuillez remplir tous les champs</div>
+      <div class="result-box" id="ohm-result">
+        <div class="result-label">Résultat</div>
+        <div class="result-value" id="ohm-val"></div>
+        <div class="result-detail" id="ohm-detail"></div>
+      </div>
+    </div>
+
+    <div class="calc-card">
+      <div class="calc-header">
+        <div class="calc-icon">P</div>
+        <div>
+          <div class="calc-name">Puissance Électrique</div>
+          <div class="calc-formula">P = U × I × cosφ &nbsp;|&nbsp; S = U × I &nbsp;|&nbsp; Q = S × sinφ</div>
+        </div>
+      </div>
+      <div class="inputs-grid">
+        <div class="field"><label>Tension U (V)</label><input type="number" id="p-U" placeholder="ex: 380" min="0"></div>
+        <div class="field"><label>Courant I (A)</label><input type="number" id="p-I" placeholder="ex: 10" min="0"></div>
+        <div class="field"><label>Facteur de puissance cosφ</label><input type="number" id="p-cos" placeholder="ex: 0.85" min="0" max="1" step="0.01"></div>
+        <div class="field">
+          <label>Type de circuit</label>
+          <select id="p-type">
+            <option value="mono">Monophasé</option>
+            <option value="tri">Triphasé</option>
+          </select>
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calcPuissance()">Calculer</button>
+      <div class="error-msg" id="p-err">⚠️ Veuillez remplir tous les champs</div>
+      <div class="result-box" id="p-result">
+        <div class="result-label">Résultats</div>
+        <div class="result-value" id="p-val"></div>
+        <div class="result-detail" id="p-detail"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="moteurs">
+    <div class="section-title">Moteurs Électriques</div>
+    <div class="section-desc">Calculs pour moteurs asynchrones triphasés</div>
+
+    <div class="calc-card">
+      <div class="calc-header">
+        <div class="calc-icon">g</div>
+        <div>
+          <div class="calc-name">Glissement</div>
+          <div class="calc-formula">g = (Ns - Nr) / Ns × 100%</div>
+        </div>
+      </div>
+      <div class="inputs-grid">
+        <div class="field"><label>Vitesse synchrone Ns (tr/min)</label><input type="number" id="g-Ns" placeholder="ex: 1500" min="0"></div>
+        <div class="field"><label>Vitesse rotor Nr (tr/min)</label><input type="number" id="g-Nr" placeholder="ex: 1450" min="0"></div>
+      </div>
+      <button class="calc-btn" onclick="calcGlissement()">Calculer</button>
+      <div class="error-msg" id="g-err">⚠️ Veuillez remplir tous les champs</div>
+      <div class="result-box" id="g-result">
+        <div class="result-label">Glissement</div>
+        <div class="result-value" id="g-val"></div>
+        <div class="result-detail" id="g-detail"></div>
+      </div>
+    </div>
+
+    <div class="calc-card">
+      <div class="calc-header">
+        <div class="calc-icon">n</div>
+        <div>
+          <div class="calc-name">Vitesse Synchrone</div>
+          <div class="calc-formula">Ns = (60 × f) / p</div>
+        </div>
+      </div>
+      <div class="inputs-grid">
+        <div class="field"><label>Fréquence f (Hz)</label><input type="number" id="ns-f" placeholder="ex: 50" min="0"></div>
+        <div class="field"><label>Nombre de paires de pôles p</label><input type="number" id="ns-p" placeholder="ex: 2" min="1"></div>
+      </div>
+      <button class="calc-btn" onclick="calcVitesse()">Calculer</button>
+      <div class="error-msg" id="ns-err">⚠️ Veuillez remplir tous les champs</div>
+      <div class="result-box" id="ns-result">
+        <div class="result-label">Vitesse synchrone</div>
+        <div class="result-value" id="ns-val"></div>
+        <div class="result-detail" id="ns-detail"></div>
+      </div>
+    </div>
+
+    <div class="calc-card">
+      <div class="calc-header">
+        <div class="calc-icon">η</div>
+        <div>
+          <div class="calc-name">Rendement du Moteur</div>
+          <div class="calc-formula">η = Pu / Pa × 100%</div>
+        </div>
+      </div>
+      <div class="inputs-grid">
+        <div class="field"><label>Puissance utile Pu (W)</label><input type="number" id="r-Pu" placeholder="ex: 4000" min="0"></div>
+        <div class="field"><label>Puissance absorbée Pa (W)</label><input type="number" id="r-Pa" placeholder="ex: 4800" min="0"></div>
+      </div>
+      <button class="calc-btn" onclick="calcRendement()">Calculer</button>
+      <div class="error-msg" id="r-err">⚠️ Veuillez remplir tous les champs</div>
+      <div class="result-box" id="r-result">
+        <div class="result-label">Rendement</div>
+        <div class="result-value" id="r-val"></div>
+        <div class="result-detail" id="r-detail"></div>
+      </div>
+    </div>
+  </div>
+<div class="section" id="cablage">
+    <div class="section-title">Dimensionnement des Câbles</div>
+    <div class="section-desc">Calcul de la section des câbles selon la chute de tension (NF C 15-100)</div>
+
+    <div class="calc-card">
+      <div class="calc-header">
+        <div class="calc-icon">S</div>
+        <div>
+          <div class="calc-name">Section de Câble (ΔU)</div>
+          <div class="calc-formula">Mono: S = (2ρLIcosφ)/ΔU | Tri: S = (√3ρLIcosφ)/ΔU</div>
+        </div>
+      </div>
+      <div class="inputs-grid">
+        <div class="field">
+          <label>Type de courant</label>
+          <select id="cab-type">
+            <option value="mono">Monophasé (230V)</option>
+            <option value="tri">Triphasé (400V)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Matériau du conducteur</label>
+          <select id="cab-mat">
+            <option value="0.0225">Cuivre (Cu)</option>
+            <option value="0.036">Aluminium (Al)</option>
+          </select>
+        </div>
+        <div class="field"><label>Courant I (A)</label><input type="number" id="cab-I" placeholder="ex: 32" min="0"></div>
+        <div class="field"><label>Longueur L (m)</label><input type="number" id="cab-L" placeholder="ex: 50" min="0"></div>
+        <div class="field"><label>Chute tension max (%)</label><input type="number" id="cab-du-perc" placeholder="ex: 3" value="3" min="0.1" max="10" step="0.1"></div>
+        <div class="field"><label>Facteur cos φ</label><input type="number" id="cab-cos" placeholder="ex: 0.85" value="1" min="0" max="1" step="0.01"></div>
+      </div>
+      <button class="calc-btn" onclick="calcSection()">Calculer la section</button>
+      <div class="error-msg" id="cab-err">⚠️ Veuillez remplir tous les champs correctement</div>
+      <div class="result-box" id="cab-result">
+        <div class="result-label">Section standard recommandée</div>
+        <div class="result-value" id="cab-val"></div>
+        <div class="result-detail" id="cab-detail"></div>
+      </div>
+    </div>
+  </div>
+  <div class="section" id="transfo">
+    <div class="section-title">Transformateurs</div>
+    <div class="section-desc">Calculs essentiels pour les transformateurs monophasés et triphasés</div>
+
+    <div class="calc-card">
+      <div class="calc-header">
+        <div class="calc-icon">m</div>
+        <div>
+          <div class="calc-name">Rapport de Transformation</div>
+          <div class="calc-formula">m = U2 / U1 = N2 / N1</div>
+        </div>
+      </div>
+      <div class="inputs-grid">
+        <div class="field"><label>Tension primaire U1 (V)</label><input type="number" id="m-U1" placeholder="ex: 10000" min="0"></div>
+        <div class="field"><label>Tension secondaire U2 (V)</label><input type="number" id="m-U2" placeholder="ex: 400" min="0"></div>
+      </div>
+      <button class="calc-btn" onclick="calcRapport()">Calculer</button>
+      <div class="error-msg" id="m-err">⚠️ Veuillez remplir tous les champs</div>
+      <div class="result-box" id="m-result">
+        <div class="result-label">Rapport de transformation</div>
+        <div class="result-value" id="m-val"></div>
+        <div class="result-detail" id="m-detail"></div>
+      </div>
+    </div>
+
+    <div class="calc-card">
+      <div class="calc-header">
+        <div class="calc-icon">I</div>
+        <div>
+          <div class="calc-name">Courants Primaire / Secondaire</div>
+          <div class="calc-formula">I1 = S / U1 &nbsp;|&nbsp; I2 = S / U2</div>
+        </div>
+      </div>
+      <div class="inputs-grid">
+        <div class="field">
+          <label>Calculer</label>
+          <select id="ti-calc">
+            <option value="I1">Courant primaire I1 (A)</option>
+            <option value="I2">Courant secondaire I2 (A)</option>
+          </select>
+        </div>
+        <div class="field"><label>Puissance apparente S (VA)</label><input type="number" id="ti-S" placeholder="ex: 25000" min="0"></div>
+        <div class="field"><label>Tension primaire U1 (V)</label><input type="number" id="ti-U1" placeholder="ex: 10000" min="0"></div>
+        <div class="field"><label>Tension secondaire U2 (V)</label><input type="number" id="ti-U2" placeholder="ex: 400" min="0"></div>
+      </div>
+      <button class="calc-btn" onclick="calcCourantsTransfo()">Calculer</button>
+      <div class="error-msg" id="ti-err">⚠️ Veuillez remplir tous les champs</div>
+      <div class="result-box" id="ti-result">
+        <div class="result-label">Résultat</div>
+        <div class="result-value" id="ti-val"></div>
+        <div class="result-detail" id="ti-detail"></div>
+      </div>
+    </div>
+
+    <div class="calc-card">
+      <div class="calc-header">
+        <div class="calc-icon">η</div>
+        <div>
+          <div class="calc-name">Rendement du Transformateur</div>
+          <div class="calc-formula">η = P2 / (P2 + Pfer + Pcu) × 100%</div>
+        </div>
+      </div>
+      <div class="inputs-grid">
+        <div class="field"><label>Puissance secondaire P2 (W)</label><input type="number" id="rt-P2" placeholder="ex: 22000" min="0"></div>
+        <div class="field"><label>Pertes fer Pfer (W)</label><input type="number" id="rt-Pfer" placeholder="ex: 200" min="0"></div>
+        <div class="field"><label>Pertes cuivre Pcu (W)</label><input type="number" id="rt-Pcu" placeholder="ex: 500" min="0"></div>
+      </div>
+      <button class="calc-btn" onclick="calcRendementTransfo()">Calculer</button>
+      <div class="error-msg" id="rt-err">⚠️ Veuillez remplir tous les champs</div>
+      <div class="result-box" id="rt-result">
+        <div class="result-label">Rendement</div>
+        <div class="result-value" id="rt-val"></div>
+        <div class="result-detail" id="rt-detail"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="cours">
+    <div class="section-title">Cours Théoriques</div>
+    <div class="section-desc">Résumés des notions essentielles en électricité industrielle — cliquez sur une carte pour lire</div>
+
+    <div class="theory-grid">
+
+      <div class="theory-card" onclick="openLesson('ohm')">
+        <div class="theory-card-header">
+          <div class="theory-icon orange">⚡</div>
+          <div>
+            <div class="theory-card-title">Loi d'Ohm & Kirchhoff</div>
+            <div class="theory-card-sub">Fondements du circuit électrique</div>
+          </div>
+        </div>
+        <div class="theory-card-body">
+          <p>Relation entre tension, courant et résistance. Lois des mailles et des nœuds.</p>
+        </div>
+      </div>
+
+      <div class="theory-card" onclick="openLesson('puissance')">
+        <div class="theory-card-header">
+          <div class="theory-icon blue">📐</div>
+          <div>
+            <div class="theory-card-title">Triangle des Puissances</div>
+            <div class="theory-card-sub">P, Q, S et facteur de puissance</div>
+          </div>
+        </div>
+        <div class="theory-card-body">
+          <p>Puissance active, réactive, apparente. Correction du facteur de puissance cosφ.</p>
+        </div>
+      </div>
+
+      <div class="theory-card" onclick="openLesson('moteur')">
+        <div class="theory-card-header">
+          <div class="theory-icon green">⚙️</div>
+          <div>
+            <div class="theory-card-title">Moteur Asynchrone Triphasé</div>
+            <div class="theory-card-sub">Principe, glissement, démarrage</div>
+          </div>
+        </div>
+        <div class="theory-card-body">
+          <p>Fonctionnement du MAT, vitesse de synchronisme, glissement, couplage étoile-triangle.</p>
+        </div>
+      </div>
+
+      <div class="theory-card" onclick="openLesson('transformateur')">
+        <div class="theory-card-header">
+          <div class="theory-icon orange">🔄</div>
+          <div>
+            <div class="theory-card-title">Transformateur</div>
+            <div class="theory-card-sub">Principe, rapport, pertes</div>
+          </div>
+        </div>
+        <div class="theory-card-body">
+          <p>Induction mutuelle, rapport de transformation, pertes fer et cuivre, rendement.</p>
+        </div>
+      </div>
+
+      <div class="theory-card" onclick="openLesson('protection')">
+        <div class="theory-card-header">
+          <div class="theory-icon blue">🛡️</div>
+          <div>
+            <div class="theory-card-title">Protections Électriques</div>
+            <div class="theory-card-sub">Disjoncteurs, fusibles, relais</div>
+          </div>
+        </div>
+        <div class="theory-card-body">
+          <p>Types de protections contre les surcharges, courts-circuits et défauts à la terre.</p>
+        </div>
+      </div>
+
+      <div class="theory-card" onclick="openLesson('variateur')">
+        <div class="theory-card-header">
+          <div class="theory-icon green">🎛️</div>
+          <div>
+            <div class="theory-card-title">Variateur de Vitesse (VFD)</div>
+            <div class="theory-card-sub">Principe et applications</div>
+          </div>
+        </div>
+        <div class="theory-card-body">
+          <p>Contrôle de la fréquence pour réguler la vitesse du moteur. Applications industrielles.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Cours</div>
+      <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<footer>EI Calc — v2.5 · Électricité Industrielle</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
