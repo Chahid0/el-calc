@@ -7,40 +7,39 @@ function toggleTheme() {
   document.getElementById('theme-btn').textContent = isDark ? '🌙' : '☀️';
 }
 
-// ===== NAVIGATION (HOME & TABS) =====
+// ===== NAVIGATION (HOME & TABS) الخطة المضمونة =====
 function goToSection(id) {
-  // هذه الدالة تبحث عن الزر الخاص بالقسم في الأعلى وتقوم بالضغط عليه برمجياً
-  const tabBtn = document.querySelector(`.tab[onclick="switchTab('${id}', this)"]`);
-  if(tabBtn) {
-    tabBtn.click();
-  }
+  // نغير الرابط فقط (نضيف هاش)، والمتصفح سيتكفل بالباقي
+  window.location.hash = id;
 }
 
-// أضفنا مُعامل pushToHistory للتحكم في تسجيل الزيارات
-function switchTab(id, btn, pushToHistory = true) {
-  // 1. التحكم في ظهور شريط التبويبات العلوي
+function switchTab(id, btn) {
+  // نغير الرابط فقط
+  window.location.hash = id;
+}
+
+// هذه الدالة هي التي تقوم بتغيير الشاشات فعلياً استجابةً لتغير الرابط
+function updateUI(id) {
   const tabsContainer = document.getElementById('main-tabs');
-  if (id === 'home') {
-    tabsContainer.style.display = 'none'; // إخفاء الشريط في الشاشة الرئيسية
-  } else {
-    tabsContainer.style.display = 'flex'; // إظهار الشريط في باقي الصفحات
+  if (tabsContainer) {
+    if (id === 'home') {
+      tabsContainer.style.display = 'none'; // إخفاء الشريط في الشاشة الرئيسية
+    } else {
+      tabsContainer.style.display = 'flex'; // إظهار الشريط في باقي الصفحات
+    }
   }
 
-  // 2. تغيير القسم المعروض وتفعيل الزر
+  // إخفاء كل الأقسام وتفعيل القسم المطلوب
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   
   const targetSection = document.getElementById(id);
   if (targetSection) targetSection.classList.add('active');
   
-  // إذا لم يتم تمرير الزر (مثل حالة العودة بزر الرجوع)، نبحث عنه برمجياً ونفعله
-  const targetBtn = btn || document.querySelector(`.tab[onclick="switchTab('${id}', this)"]`);
+  // تفعيل الزر في الشريط العلوي لكي يظهر أنه مضغوط
+  const targetBtn = document.querySelector(`.tab[onclick="switchTab('${id}', this)"]`) || 
+                    document.querySelector(`.tab[onclick*="${id}"]`);
   if (targetBtn) targetBtn.classList.add('active');
-
-  // 3. إضافة الانتقال إلى سجل المتصفح (الخدعة الخاصة بزر الرجوع)
-  if (pushToHistory) {
-    history.pushState({ page: id }, '', '#' + id);
-  }
 }
 
 // ===== HELPERS (دوال مساعدة) =====
@@ -156,7 +155,6 @@ function calcSection() {
     S = (Math.sqrt(3) * rho * L * I * cos) / deltaU;
   }
 
-  // المقاطع القياسية
   const standardSections = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70, 95, 120, 150, 185, 240, 300];
   
   let S_std = standardSections.find(sec => sec >= S);
@@ -302,7 +300,7 @@ const lessons = {
       <div class="lesson-section">
         <h3>3. Norme NF C 15-100</h3>
         <p>La norme française des installations électriques basse tension définit les règles de protection des personnes et des biens : sélection des câbles, protection contre les chocs électriques, régimes de neutre (TT, TN, IT).</p>
-        <div class="tip-box"><strong>💡 Rappel OCP :</strong> Dans les sites industriels comme Jorf Lasfar, le régime IT est courant pour assurer la continuité de service même en cas de premier défaut.</div>
+        <div class="tip-box"><strong>💡 Rappel :</strong> Dans les sites industriels, le régime IT est courant pour assurer la continuité de service même en cas de premier défaut.</div>
       </div>
     `
   },
@@ -329,7 +327,7 @@ const lessons = {
         <p>• Démarrage progressif → réduit les à-coups mécaniques</p>
         <p>• Contrôle précis de la vitesse et du couple</p>
         <p>• Protection intégrée contre surcharge, surtension, sous-tension</p>
-        <div class="tip-box"><strong>💡 Application :</strong> Les ponts roulants (comme à OCP Jorf Lasfar) utilisent des variateurs pour contrôler précisément la vitesse de levage et de translation.</div>
+        <div class="tip-box"><strong>💡 Application :</strong> Les ponts roulants utilisent des variateurs pour contrôler précisément la vitesse de levage et de translation.</div>
       </div>
     `
   }
@@ -351,16 +349,16 @@ function closeModal(e) {
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalBtn(); });
 
-// ===== إعدادات زر الرجوع في الهاتف (History API) =====
-window.addEventListener('popstate', function(event) {
-  if (event.state && event.state.page) {
-    // الرجوع إلى القسم المحفوظ في السجل
-    switchTab(event.state.page, null, false);
-  } else {
-    // الرجوع إلى الشاشة الرئيسية كوضع افتراضي
-    switchTab('home', null, false);
-  }
+// ===== إعدادات زر الرجوع المضمونة 100% (طريقة الـ Hash) =====
+
+// نراقب أي تغيير في رابط الموقع (سواء بالضغط على زر أو الرجوع بالهاتف)
+window.addEventListener('hashchange', function() {
+  let currentHash = window.location.hash.replace('#', '') || 'home';
+  updateUI(currentHash);
 });
 
-// تشغيل مبدئي لتسجيل الشاشة الرئيسية عند فتح التطبيق لأول مرة
-history.replaceState({ page: 'home' }, '', '#home');
+// عند فتح التطبيق لأول مرة (نقوم بتحميل الشاشة المناسبة)
+window.addEventListener('load', function() {
+  let initialHash = window.location.hash.replace('#', '') || 'home';
+  updateUI(initialHash);
+});
