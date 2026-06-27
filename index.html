@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html >
 <head>
+<!-- ربط ملف الهوية -->
+<link rel="manifest" href="manifest.json">
+
+<!-- تفعيل العمل بدون إنترنت -->
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EI Calc — Électricité Industrielle</title>
